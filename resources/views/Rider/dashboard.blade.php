@@ -109,56 +109,56 @@
         </div>
 
         <div class="container py-3">
-          <div class="row g-3">
-            <div class="col-12">
-              <div class="card shadow-sm p-3">
-                <h5 class="text-center mb-3">🗺️ Set Your Route</h5>
+  <div class="row g-3">
+    <div class="col-12">
+      <div class="card route-card shadow-sm p-3">
+        <h5 class="text-center mb-3">🗺️ Set Your Route</h5>
 
-                <div class="mb-2">
-                  <label for="fromPlace" class="form-label">From:</label>
-                  <input type="text" id="fromPlace" class="form-control" placeholder="Starting point">
-                </div>
-
-                <div class="mb-2">
-                  <label for="toPlace" class="form-label">To:</label>
-                  <input type="text" id="toPlace" class="form-control" placeholder="Destination">
-                </div>
-
-                <div class="text-center">
-                  <button id="calculateRouteBtn" class="btn btn-danger w-100">Calculate Route</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Map Card -->
-            <div class="col-12">
-              <div class="card shadow-sm p-2">
-                <div id="mapContainer">
-                  <div id="map"></div>
-                </div>
-
-
-                <!-- Fullscreen Button -->
-                <button id="fullscreenBtn"
-                  class="btn btn-light position-absolute top-0 end-0 m-2 shadow rounded-circle"
-                  style="z-index: 10000;">
-                  <i class="bi bi-arrows-fullscreen"></i>
-                </button>
-
-
-              </div>
-            </div>
-
-            <!-- Route Info -->
-            <div class="col-12">
-              <div id="routeInfo" class="alert alert-info d-none"></div>
-              <div id="loadingSpinner" class="text-center" style="display:none;">
-                <div class="spinner-border text-danger" role="status"></div>
-                <p>Calculating route...</p>
-              </div>
-            </div>
-          </div>
+        <div class="mb-2">
+          <label for="fromPlace" class="form-label">From:</label>
+          <input type="text" id="fromPlace" class="form-control route-input" placeholder="Starting point">
         </div>
+
+        <div class="mb-2">
+          <label for="toPlace" class="form-label">To:</label>
+          <input type="text" id="toPlace" class="form-control route-input" placeholder="Destination">
+        </div>
+
+        <div class="text-center">
+          <button id="calculateRouteBtn" class="btn btn-danger w-100 route-btn">
+            Calculate Route
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map Card -->
+    <div class="col-12">
+      <div class="card map-card shadow-sm p-2 position-relative">
+        <div id="mapContainer">
+          <div id="map"></div>
+        </div>
+
+        <!-- Fullscreen Button -->
+        <button id="fullscreenBtn"
+          class="btn fullscreen-toggle-btn shadow rounded-circle"
+          style="z-index: 10000;">
+          <i class="bi bi-arrows-fullscreen"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Route Info -->
+    <div class="col-12">
+      <div id="routeInfo" class="alert route-alert d-none"></div>
+      <div id="loadingSpinner" class="text-center" style="display:none;">
+        <div class="spinner-border text-danger" role="status"></div>
+        <p>Calculating route...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 
       </div>
 
@@ -170,12 +170,19 @@
         <div class="history-controls mb-3 d-flex flex-wrap gap-2">
             <input type="text" id="historySearch" class="form-control w-auto" placeholder="Search history..." style="min-width: 290px; color: white;">
 
-            <div class="btn-group">
-                <button class="btn btn-outline-light history-filter" data-filter="all" style="height: 35px;">All</button>
-                <button class="btn btn-outline-light history-filter" data-filter="today" style="height: 35px;" >Today</button>
-                <button class="btn btn-outline-light history-filter" data-filter="week" style="height: 35px;">Week</button>
-                <button class="btn btn-outline-light history-filter" data-filter="month" style="height: 35px;">Month</button>
-            </div>
+            <!-- Filter Dropdown -->
+<div class="dropdown">
+  <button class="btn btn-outline-light dropdown-toggle" type="button" id="historyFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="bi bi-funnel"></i> Filter
+  </button>
+  <ul class="dropdown-menu" aria-labelledby="historyFilterDropdown">
+    <li><a class="dropdown-item history-filter" href="#" data-filter="all">All</a></li>
+    <li><a class="dropdown-item history-filter" href="#" data-filter="today">Today</a></li>
+    <li><a class="dropdown-item history-filter" href="#" data-filter="week">Week</a></li>
+    <li><a class="dropdown-item history-filter" href="#" data-filter="month">Month</a></li>
+  </ul>
+</div>
+
 
            <!-- Dropdown Sort -->
 <div class="dropdown">
@@ -261,46 +268,49 @@
         <div class="content-card">
           <h3>💳 Transactions</h3>
           <div class="accordion" id="transactionsAccordion">
-            @foreach ($transactions as $transaction)
-            <div class="accordion-item">
-              <h2 class="accordion-header" id="heading{{ $transaction->transaction_id }}">
-  <button class="accordion-button collapsed d-flex justify-content-between align-items-center"
-  type="button"
-  data-bs-toggle="collapse"
-  data-bs-target="#collapse{{ $transaction->transaction_id }}"
-  aria-expanded="false"
-  aria-controls="collapse{{ $transaction->transaction_id }}">
+  @foreach ($transactions as $transaction)
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="heading{{ $transaction->transaction_id }}">
+      <button class="accordion-button collapsed d-flex justify-content-between align-items-center"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapse{{ $transaction->transaction_id }}"
+              aria-expanded="false"
+              aria-controls="collapse{{ $transaction->transaction_id }}">
+        <span class="d-flex flex-nowrap align-items-center flex-grow-1 text-truncate">
+          <span class="text-truncate me-2">{{ $transaction->customer_name }}</span>
+          <span class="badge bg-info flex-shrink-0">{{ $transaction->delivery_status }}</span>
+        </span>
+      </button>
+    </h2>
 
-  <span class="d-flex flex-nowrap align-items-center flex-grow-1 text-truncate">
-    <span class="text-truncate me-2">{{ $transaction->customer_name }}</span>
-    <span class="badge bg-info flex-shrink-0">{{ $transaction->delivery_status }}</span>
-  </span>
+    <div id="collapse{{ $transaction->transaction_id }}" class="accordion-collapse collapse"
+         aria-labelledby="heading{{ $transaction->transaction_id }}" data-bs-parent="#transactionsAccordion">
+      <div class="accordion-body">
+        <p class="address-text"><strong>Address:</strong> {{ $transaction->customer_address }}</p>
+        <p>
+          <strong>Contact:</strong> 
+          <span class="customer-phone" 
+                style="color:#0d6efd;cursor:pointer;" 
+                data-phone="{{ $transaction->customer_contact }}">
+            {{ $transaction->customer_contact }}
+          </span>
+        </p>
 
-</button>
+        <!-- Set as Destination Button -->
+        <button class="btn btn-primary set-route-btn"
+                data-transaction-id="{{ $transaction->transaction_id }}"
+                data-name="{{ $transaction->customer_name }}"
+                data-address="{{ $transaction->customer_address }}"
+                data-contact="{{ $transaction->customer_contact }}">
+          Set as Destination
+        </button>
+      </div>
+    </div>
+  </div>
+  @endforeach
+</div>
 
-
-</h2>
-
-              <div id="collapse{{ $transaction->transaction_id }}" class="accordion-collapse collapse"
-                aria-labelledby="heading{{ $transaction->transaction_id }}" data-bs-parent="#transactionsAccordion">
-                <div class="accordion-body">
-                  <p><strong>Address:</strong> {{ $transaction->customer_address }}</p>
-                  <p><strong>Contact:</strong> {{ $transaction->customer_contact }}</p>
-                  <!-- inside accordion body -->
-                  <button class="btn btn-primary set-route-btn"
-                    data-transaction-id="{{ $transaction->transaction_id }}"
-                    data-name="{{ $transaction->customer_name }}"
-                    data-address="{{ $transaction->customer_address }}"
-                    data-contact="{{ $transaction->customer_contact }}">
-                    Set as Destination
-                  </button>
-
-
-                </div>
-              </div>
-            </div>
-            @endforeach
-          </div>
         </div>
       </div>
 
@@ -365,8 +375,37 @@
   </div>
 
 
+  <div class="modal fade" id="phoneModal" tabindex="-1" aria-labelledby="phoneModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content contact-modal">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="phoneModalLabel">Contact Customer</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <div class="contact-icon-wrapper mb-3">
+          <i class="bi bi-person-lines-fill"></i>
+        </div>
+        <p id="modalPhoneNumber" class="fs-4 fw-semibold mb-3"></p>
+        <p class="contact-subtitle mb-3">Choose how you want to reach the customer</p>
 
-
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-2 mt-2">
+          <a id="callBtn" class="btn contact-btn-call d-flex align-items-center justify-content-center gap-2 px-4" href="">
+            <i class="bi bi-telephone-fill"></i>
+            <span>Call</span>
+          </a>
+          <a id="messageBtn" class="btn contact-btn-message d-flex align-items-center justify-content-center gap-2 px-4" href="">
+            <i class="bi bi-chat-dots-fill"></i>
+            <span>Message</span>
+          </a>
+        </div>
+      </div>
+      <div class="modal-footer border-0 justify-content-center pt-0">
+        <small class="contact-note">Make sure to confirm the order details with the customer.</small>
+      </div>
+    </div>
+  </div>
+</div>
 
   <!-- === SCRIPTS === -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

@@ -9,6 +9,7 @@ import "./modules/theme.js";
 import "./modules/fullscreen.js";
 import "./modules/tabs.js";
 import "./modules/history.js";
+import "./modules/phonemodal.js";
 
 // Initialize map
 initMap();
