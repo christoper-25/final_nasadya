@@ -89,45 +89,37 @@ map.addControl(new InstructionsToggle());
 
   // Get current location
   if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        const { latitude: lat, longitude: lng } = position.coords;
-        currentLocation = [lat, lng];
-        map.setView(currentLocation, 15);
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      const { latitude: lat, longitude: lng } = position.coords;
+      currentLocation = [lat, lng];
 
-        currentMarker = L.marker(currentLocation)
-          .addTo(map)
-          .bindPopup("You are here")
-          .openPopup();
+      map.setView(currentLocation, 15);
 
-        // Reverse geocode to fill 'From' input
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
-          .then(res => res.json())
-          .then(data => {
-            if (data?.address) {
-              const addr = data.address;
-              const barangay = addr.suburb || addr.village || addr.hamlet || addr.neighbourhood;
-              const municipality = addr.town || addr.municipality || addr.city_district;
-              const city = addr.city;
-              const clean = [barangay, municipality, city].filter(Boolean).join(", ");
-              const fromInput = document.getElementById("fromPlace");
-              if (fromInput) {
-                fromInput.value = clean;
-                currentMarker.bindPopup(clean).openPopup();
-              }
-            }
-          })
-          .catch(() => {
-            const fromInput = document.getElementById("fromPlace");
-            if (fromInput) fromInput.value = `${lat}, ${lng}`;
-          });
-      },
-      () => alert("Unable to access your location. Showing default location."),
-      { enableHighAccuracy: true }
-    );
-  } else {
-    alert("Geolocation is not supported by your browser.");
-  }
+      currentMarker = L.marker(currentLocation)
+        .addTo(map)
+        .bindPopup("You are here")
+        .openPopup();
+
+      // Fill 'From' input automatically
+      const fromInput = document.getElementById("fromPlace");
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data?.display_name && fromInput) fromInput.value = data.display_name;
+        });
+    },
+    () => {
+      console.warn("GPS failed — fallback to manual input only");
+      const fromInput = document.getElementById("fromPlace");
+      if (fromInput) fromInput.value = "";
+    },
+    { enableHighAccuracy: true, timeout: 6000 }
+  );
+} else {
+  console.warn("Geolocation not supported — manual input only");
+}
+
 }
 
 // -------------------------
@@ -282,3 +274,43 @@ export function calculateRoute(to) {
       });
   });
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("calculateRouteBtn");
+  btn?.addEventListener("click", async () => {
+    const fromText = document.getElementById("fromPlace").value;
+    const toText = document.getElementById("toPlace").value;
+
+    if (!fromText || !toText) {
+      alert("Please enter both FROM and TO locations.");
+      return;
+    }
+
+    // Geocode 'FROM' only if GPS not available
+    if (!currentLocation) {
+      const fromCoords = await geocodeAddress(fromText);
+      if (!fromCoords) {
+        alert("Starting location not found.");
+        return;
+      }
+      currentLocation = [fromCoords.lat, fromCoords.lng];
+    }
+
+    // Call existing calculateRoute() function using 'to' value
+    calculateRoute(toText);
+  });
+});
+
+
+function geocodeAddress(query) {
+  return fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+    .then(res => res.json())
+    .then(results => {
+      if (!results.length) return null;
+      return {
+        lat: parseFloat(results[0].lat),
+        lng: parseFloat(results[0].lon)
+      };
+    });
+}
+

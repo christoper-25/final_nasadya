@@ -110,7 +110,6 @@
 
         <div class="container py-3">
           <div class="row g-3">
-            <!-- Search Card -->
             <div class="col-12">
               <div class="card shadow-sm p-3">
                 <h5 class="text-center mb-3">🗺️ Set Your Route</h5>
