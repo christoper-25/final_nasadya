@@ -1,17 +1,23 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const historyContainer = document.querySelector("#historyAccordion");
+    if (!historyContainer) return;
 
-    const items = [...document.querySelectorAll(".accordion-item")];
+    // Select only history items
+    const getHistoryItems = () => [...historyContainer.querySelectorAll(".accordion-item")];
 
-    // SEARCH
-    document.querySelector("#historySearch").addEventListener("input", function () {
-        const q = this.value.toLowerCase();
-        items.forEach(item => {
-            const text = item.innerText.toLowerCase();
-            item.style.display = text.includes(q) ? "" : "none";
+    // SEARCH (history only)
+    const historySearch = document.querySelector("#historySearch");
+    if (historySearch) {
+        historySearch.addEventListener("input", function () {
+            const q = this.value.toLowerCase();
+            getHistoryItems().forEach(item => {
+                const text = item.innerText.toLowerCase();
+                item.style.display = text.includes(q) ? "" : "none";
+            });
         });
-    });
+    }
 
-    // FILTER BUTTONS
+    // FILTER BUTTONS (history only)
     document.querySelectorAll(".history-filter").forEach(btn => {
         btn.addEventListener("click", () => {
             const filter = btn.dataset.filter;
@@ -19,10 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
             document.querySelectorAll(".history-filter").forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
 
-            items.forEach(item => {
+            const now = new Date();
+            getHistoryItems().forEach(item => {
                 const date = item.dataset.date;
                 const d = new Date(date);
-                const now = new Date();
 
                 let show = true;
                 if (filter === "today") {
@@ -39,22 +45,24 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // SORT DROPDOWN BUTTON
+    // SORT DROPDOWN BUTTON (history only)
     document.querySelectorAll(".sort-option").forEach(option => {
         option.addEventListener("click", function (e) {
             e.preventDefault();
-            const container = document.querySelector("#historyAccordion");
 
-            // update dropdown button text
-            document.getElementById("historySortDropdown").textContent = this.textContent;
+            const container = historyContainer;
 
-            // mark active
+            // Update dropdown button text
+            const dropdownBtn = document.getElementById("historySortDropdown");
+            if (dropdownBtn) dropdownBtn.textContent = this.textContent;
+
+            // Mark active
             document.querySelectorAll(".sort-option").forEach(o => o.classList.remove("active"));
             this.classList.add("active");
 
-            // sort items
+            // Sort items
             const sortValue = this.dataset.value;
-            const sorted = items.sort((a, b) => {
+            const sorted = getHistoryItems().sort((a, b) => {
                 const d1 = new Date(a.dataset.date);
                 const d2 = new Date(b.dataset.date);
                 return sortValue === "latest" ? d2 - d1 : d1 - d2;
@@ -64,5 +72,4 @@ document.addEventListener("DOMContentLoaded", () => {
             sorted.forEach(i => container.appendChild(i));
         });
     });
-
 });

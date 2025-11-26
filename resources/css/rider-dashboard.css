@@ -727,6 +727,90 @@ body.dark-mode .leaflet-routing-alt * {
   box-shadow: 0 2px 10px rgba(0,0,0,0.7);
 }
 
+.leaflet-control.directions-control {
+  background: rgba(24, 18, 35, 0.96);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 75, 107, 0.35);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+  max-width: 345px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 10px 12px;
+  font-size: 0.9em;
+  color: #f3edf9;
+}
+
+/* Text at labels inside */
+.leaflet-control.directions-control label,
+.leaflet-control.directions-control p,
+.leaflet-control.directions-control span,
+.leaflet-control.directions-control small {
+  color: #dcd4ec;
+}
+
+/* Inputs inside directions control */
+.leaflet-control.directions-control input,
+.leaflet-control.directions-control select {
+  background: #1f1a2a;
+  border: 1px solid rgba(255, 75, 107, 0.35);
+  color: #f5f5f5;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+.leaflet-control.directions-control input::placeholder {
+  color: #a19ab8;
+}
+.leaflet-control.directions-control input:focus,
+.leaflet-control.directions-control select:focus {
+  outline: none;
+  border-color: #ff4b6b;
+  box-shadow: 0 0 0 0.12rem rgba(255, 75, 107, 0.4);
+}
+
+/* Buttons inside (e.g. Go / Clear) */
+.leaflet-control.directions-control .btn,
+.leaflet-control.directions-control button {
+  background: linear-gradient(90deg, #ff4b6b 0%, #000000 100%);
+  border: none;
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.8rem;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.7);
+}
+.leaflet-control.directions-control .btn:hover,
+.leaflet-control.directions-control button:hover {
+  background: linear-gradient(90deg, #e04060 0%, #000000 100%);
+}
+
+.light-mode .leaflet-control.directions-control {
+  background: #ffffff !important;
+  border: 1px solid #ddd !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+  color: #212529 !important;
+}
+
+.light-mode .leaflet-control.directions-control label,
+.light-mode .leaflet-control.directions-control p,
+.light-mode .leaflet-control.directions-control span,
+.light-mode .leaflet-control.directions-control small {
+  color: #212529 !important;
+}
+
+.light-mode .leaflet-control.directions-control input,
+.light-mode .leaflet-control.directions-control select {
+  background: #ffffff !important;
+  border: 1px solid #ced4da !important;
+  color: #212529 !important;
+}
+
+.light-mode .leaflet-control.directions-control .btn,
+.light-mode .leaflet-control.directions-control button {
+  background: linear-gradient(90deg, #ff4b6b 0%, #000000 100%) !important;
+  color: #ffffff !important;
+}
+
+
 
 
 .light-mode .form-label {
@@ -738,6 +822,50 @@ body.dark-mode .leaflet-routing-alt * {
 .route-card .form-label {
   color: #f0e7ff;
 }
+
+/* Base style ng instructions toggle sa map */
+.inst-btn {
+  background: rgba(24, 18, 35, 0.95);
+  color: #f3edf9;
+  border: 1px solid rgba(255, 75, 107, 0.4);
+  box-shadow: 0 3px 12px rgba(0,0,0,0.7);
+  border-radius: 999px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.inst-btn:hover {
+  background: linear-gradient(90deg, #ff4b6b 0%, #000000 100%);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 16px rgba(0,0,0,0.85);
+}
+
+/* Active state kapag naka-show na directions */
+.inst-btn.inst-btn-active {
+  background: linear-gradient(90deg, #ff4b6b 0%, #000000 100%);
+  color: #ffffff;
+  border-color: transparent;
+}
+
+
+.light-mode .inst-btn {
+  background: #ffffff !important;
+  color: #212529 !important;
+  border: 1px solid #ced4da !important;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+
+.light-mode .inst-btn:hover,
+.light-mode .inst-btn.inst-btn-active {
+  background: linear-gradient(90deg, #ff4b6b 0%, #000000 100%) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+ 
 
 
 
