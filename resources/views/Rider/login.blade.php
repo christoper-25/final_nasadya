@@ -34,9 +34,6 @@
       <button type="submit" class="btn-login mt-2">Login</button>
     </form>
 
-    <div class="extra-links mt-3">
-      <a href="#">Forgot Password?</a>
-    </div>
   </div>
 
 </body>

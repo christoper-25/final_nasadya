@@ -1,21 +1,32 @@
-// resources/js/modules/theme.js
-
 document.addEventListener("DOMContentLoaded", () => {
-  const body = document.body;
-  const toggleBtn = document.getElementById("themeToggle");
-  const icon = document.getElementById("themeIcon");
+    const body = document.body;
 
-  const savedTheme = localStorage.getItem("theme") || "light";
-  body.classList.add(`${savedTheme}-mode`);
-  icon.className = savedTheme === "dark" ? "bi bi-moon-fill" : "bi bi-sun-fill";
+    const desktopBtn = document.getElementById("themeToggle");
+    const desktopIcon = document.getElementById("themeIcon");
 
-  toggleBtn?.addEventListener("click", () => {
-    body.classList.toggle("dark-mode");
-    body.classList.toggle("light-mode");
+    const mobileBtn = document.getElementById("mobileThemeToggle");
+    const mobileIcon = document.getElementById("mobileThemeIcon");
 
-    const newTheme = body.classList.contains("dark-mode") ? "dark" : "light";
-    icon.className = newTheme === "dark" ? "bi bi-moon-fill" : "bi bi-sun-fill";
-    localStorage.setItem("theme", newTheme);
-  });
+    const savedTheme = localStorage.getItem("theme") || "light";
+    body.classList.add(savedTheme === "dark" ? "dark-mode" : "light-mode");
+
+    function updateIcons(theme) {
+        const iconClass = theme === "dark" ? "bi bi-moon-fill" : "bi bi-sun-fill";
+        if (desktopIcon) desktopIcon.className = iconClass;
+        if (mobileIcon) mobileIcon.className = iconClass;
+    }
+
+    updateIcons(savedTheme);
+
+    function toggleTheme() {
+        body.classList.toggle("dark-mode");
+        body.classList.toggle("light-mode");
+
+        const newTheme = body.classList.contains("dark-mode") ? "dark" : "light";
+        localStorage.setItem("theme", newTheme);
+        updateIcons(newTheme);
+    }
+
+    if (desktopBtn) desktopBtn.addEventListener("click", toggleTheme);
+    if (mobileBtn) mobileBtn.addEventListener("click", toggleTheme);
 });
-

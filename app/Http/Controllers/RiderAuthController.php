@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
+use App\Models\OnlineOrder;
+
 
 class RiderAuthController extends Controller
 {
@@ -55,25 +57,29 @@ class RiderAuthController extends Controller
 }
 
 
+
 public function dashboard()
 {
-    // Redirect to login if not authenticated
     if (!session()->has('rider_id')) {
         return redirect()->route('rider.login');
     }
 
     $rider = Rider::find(session('rider_id'));
 
-    // For Transactions (hindi kasama ang 'Completed')
-    $transactions = Transaction::where('rider_id', $rider->id)
-                               ->where('delivery_status', '!=', 'Completed')->get();
+    // Fetch lahat ng online orders + user info
+    $orders = OnlineOrder::with('user:id,name,telephone_number')
+        ->whereIn('status', ['Prepared', 'Ongoing']) // or show all
+        ->get();
 
-    // For History (kasama lang ang 'Completed')
-    $history = Transaction::where('rider_id', $rider->id)
-                          ->where('delivery_status', 'Completed')->get();
+    $history = OnlineOrder::with('user:id,name,telephone_number')
+    ->where('rider_id', $rider->id)
+    ->where('status', 'Delivered')
+    ->get();
 
-    return view('rider.dashboard', compact('rider','transactions', 'history'));
+    return view('rider.dashboard', compact('rider', 'orders', 'history'));
 }
+
+
 
 
 
@@ -99,71 +105,66 @@ public function dashboard()
 }
 
 // Set selected transaction to "ongoing" (in transit)
-public function setInTransit(Request $request): JsonResponse
+public function setInTransit(Request $request)
 {
     if (!session()->has('rider_id')) {
         return response()->json(['message' => 'Not authenticated'], 401);
     }
 
-    $validator = Validator::make($request->all(), [
-        'transaction_id' => 'required|integer|exists:transactions,transaction_id'
+    $request->validate([
+        'order_id' => 'required|exists:online_orders,id'
     ]);
-
-    if ($validator->fails()) {
-        return response()->json(['message' => $validator->errors()->first()], 422);
-    }
 
     $riderId = session('rider_id');
 
-    // Check if rider already has an ongoing delivery
-    $hasOngoing = Transaction::where('rider_id', $riderId)
-                    ->where('delivery_status', 'ongoing')
-                    ->exists();
+    $order = OnlineOrder::find($request->order_id);
 
-    if ($hasOngoing) {
-        return response()->json(['message' => 'You already have an ongoing delivery. Complete it before starting another.'], 409);
+    if (!$order) return response()->json(['message' => 'Order not found'], 404);
+
+    // Check if rider already has ongoing delivery
+    $ongoing = OnlineOrder::where('rider_id', $riderId)
+                ->where('status', 'Ongoing')
+                ->exists();
+
+    if ($ongoing) {
+        return response()->json(['message' => 'You already have an ongoing delivery.'], 409);
     }
 
-    $transaction = Transaction::where('transaction_id', $request->transaction_id)->first();
+    $order->status = 'Ongoing';
+    $order->rider_id = $riderId;
+    $order->save();
 
-    if (!$transaction) {
-        return response()->json(['message' => 'Transaction not found.'], 404);
-    }
-
-    // Make sure the transaction is assigned to this rider (optional)
-    if ($transaction->rider_id != $riderId) {
-        // Optionally assign it to the rider
-        $transaction->rider_id = $riderId;
-    }
-
-    $transaction->delivery_status = 'ongoing';
-    $transaction->save();
-
-    return response()->json(['message' => 'Transaction set to ongoing', 'transaction_id' => $transaction->transaction_id]);
+    return response()->json(['message' => 'Order set to Ongoing', 'order_id' => $order->id]);
 }
+
 
 
 public function markDelivered(Request $request)
 {
-    try {
-        $request->validate([
-            'transaction_id' => 'required|integer',
-            'photo' => 'required|image'
-        ]);
-        $transaction = Transaction::where('transaction_id', $request->transaction_id)->first();
-        if (!$transaction) return response()->json(['message' => 'Transaction not found'], 404);
-
-        $path = $request->file('photo')->store('proofs', 'public');
-        $transaction->update([
-            'delivery_status' => 'Completed',
-            'proof_of_delivery' => $path
-        ]);
-
-        return response()->json(['message' => 'Marked as delivered', 'proof_path' => $path]);
-    } catch (\Exception $e) {
-        return response()->json(['message' => $e->getMessage()], 500);
+    if (!session()->has('rider_id')) {
+        return response()->json(['message' => 'Not authenticated'], 401);
     }
+
+    $request->validate([
+        'order_id' => 'required|exists:online_orders,id',
+        'photo' => 'required|image'
+    ]);
+
+    $order = OnlineOrder::find($request->order_id);
+
+    if (!$order) return response()->json(['message' => 'Order not found'], 404);
+
+    // Save proof photo
+    $path = $request->file('photo')->store('proofs', 'public');
+
+    $order->update([
+        'status' => 'Delivered',
+        'proof_of_delivery' => $path
+    ]);
+
+    return response()->json(['message' => 'Marked as Delivered', 'proof_path' => $path]);
 }
+
 
 
 
